@@ -20,8 +20,15 @@ export class AdminController {
 
   @Post('/create')
   async create(@Body() createAdminDto: CreateAdminDto, @Res() res: Response) {
-    const admin = await this.adminService.create(createAdminDto);
-    return res.status(HttpStatus.CREATED).json(admin);
+    try {
+
+      const admin = await this.adminService.create(createAdminDto);
+      return res.status(HttpStatus.CREATED).json(admin);
+
+    } catch (error) {
+      // Conflit (409) http status send cuz the admin already exists 
+      return res.status(HttpStatus.CONFLICT).send(error.message);
+    }
   }
 
   @Get(['/getall', '/get/all', '/get-all', '/get'])
@@ -60,6 +67,12 @@ export class AdminController {
   @Delete('delete/id/:id')
   async remove(@Param('id') id: string, @Res() res: Response) {
     await this.adminService.remove(id);
+    return res.status(HttpStatus.NO_CONTENT).send();
+  }
+
+  @Delete('delete/email/:email')
+  async removeByEmail(@Query('email') email: string, @Res() res: Response) {
+    await this.adminService.removeByEmail(email);
     return res.status(HttpStatus.NO_CONTENT).send();
   }
 }

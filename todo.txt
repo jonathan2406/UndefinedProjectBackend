@@ -1,0 +1,13 @@
+[TO DO]
+IMPORTANT!
+- ***Create entities services and controller***
+
+[DOING]
+- Working on admin entity controller -> 
+  * Add more features to controller
+  * Add exception handlers on services and controllers
+
+[DONE]
+- Entities created
+- Firebase configuracion created
+- Admin entity service - controller created

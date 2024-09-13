@@ -15,10 +15,37 @@ export class AdminService {
     return this.firebaseApp.firestore();
   }
 
+  // Checkers 
+
+  async exists(id: string): Promise<boolean> {
+    const admin = await this.getFirestore()
+    .collection('admins')
+    .doc(id)
+    .get();
+
+    return admin.exists;
+  }
+
+  async existsByEmail(email: string): Promise<boolean> {
+    const snapshot = await this.getFirestore()
+    .collection('admins')
+    .where('email', '==', email)
+    .get();
+
+    return !snapshot.empty;
+  }
+
   async create(createAdminDto: CreateAdminDto): Promise<Admin> {
     const admin = this.getFirestore()
     .collection('admins')
     .doc();
+
+    let check1: boolean = await this.exists(admin.id);
+    let check2: boolean = await this.existsByEmail(createAdminDto.email);
+
+    if (check1 || check2) {
+      throw new Error('Admin already exists');
+    }
 
     await admin.set(createAdminDto);
 
@@ -69,6 +96,21 @@ export class AdminService {
     .collection('admins')
     .doc(id)
     .delete();
+  }
+
+  async removeByEmail(email: string): Promise<void> {
+    const snapshot = await this.getFirestore()
+    .collection('admins')
+    .where('email', '==', email)
+    .get();
+
+    if (snapshot.empty) {
+      return;
+    }
+
+    snapshot.docs.forEach(doc => {
+      doc.ref.delete();
+    });
   }
 
   async removeAll(): Promise<void> {
