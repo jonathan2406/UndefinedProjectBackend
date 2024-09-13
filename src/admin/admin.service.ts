@@ -1,26 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import * as admin from 'firebase-admin';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
+import { Injectable, Inject } from '@nestjs/common';
+import { Admin } from './entities/admin.entity'
 
 @Injectable()
 export class AdminService {
-  create(createAdminDto: CreateAdminDto) {
-    return 'This action adds a new admin';
+
+  constructor(
+    @Inject('FIREBASE_ADMIN_TOKEN') private readonly firebaseApp: admin.app.App
+  ) {}
+
+  private getFirestore() {
+    return this.firebaseApp.firestore();
   }
 
-  findAll() {
-    return `This action returns all admin`;
+  async create(createAdminDto: CreateAdminDto): Promise<Admin> {
+    const admin = this.getFirestore()
+    .collection('admins')
+    .doc();
+
+    await admin.set(createAdminDto);
+
+    let adminInstance = new Admin({ id: admin.id, ...createAdminDto });
+
+    return adminInstance;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} admin`;
+  async findAll(): Promise<Admin[]> {
+    const snapshot = await this.getFirestore().collection('admins').get();
+
+    return snapshot.docs.map(doc => {
+      return new Admin({ id: doc.id, ...doc.data() });
+    });
   }
 
-  update(id: number, updateAdminDto: UpdateAdminDto) {
-    return `This action updates a #${id} admin`;
+  async findById(id: string): Promise<Admin> {
+    const admin = await this.getFirestore()
+    .collection('admins')
+    .doc(id)
+    .get();
+
+    return new Admin({ id: admin.id, ...admin.data() });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} admin`;
+  async findByEmail(email: string): Promise<Admin> {
+    const snapshot = await this.getFirestore()
+    .collection('admins')
+    .where('email', '==', email)
+    .get();
+
+    if (snapshot.empty) {
+      return null;
+    }
+
+    const admin = snapshot.docs[0];
+
+    return new Admin({ id: admin.id, ...admin.data() });
   }
+
+  async update(id: string, updateAdminDto: UpdateAdminDto): Promise<Admin> {
+    // Have to be implemented
+    return null;
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.getFirestore()
+    .collection('admins')
+    .doc(id)
+    .delete();
+  }
+
+  async removeAll(): Promise<void> {
+    const snapshot = await this.getFirestore().collection('admins').get();
+    snapshot.docs.forEach(doc => {
+      doc.ref.delete();
+    });
+  }
+
 }
