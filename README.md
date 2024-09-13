@@ -4,6 +4,7 @@
 - David
 - Jonathan
 - Nicolas
+- Guillermo
 - ... To add
 
 ## Front-end team
