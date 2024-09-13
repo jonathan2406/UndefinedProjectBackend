@@ -4,11 +4,10 @@
 - David
 - Jonathan
 - Nicolas
-- Guillermo
 - ... To add
 
 ## Front-end team
-- Juliana
-- Isabela
-- Guillermo
+- Neithan
+- Leo
+- Phol
 - ... To add
