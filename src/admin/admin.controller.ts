@@ -72,28 +72,18 @@ export class AdminController {
 
   // Throws an error if the email is not found (404)
   @Get('get/email')
-  async findByEmail(@Body('email') email: string, @Res() res: Response) {
-
+  async findByEmail(@Body() body: { email: string }, @Res() res: Response) {
+    const { email } = body;
     this.logger.log(`Find admin by email request received for email: ${email}`);
 
     try {
-
       const admin = await this.adminService.findByEmail(email);
-      if (!admin) {
-
-        this.logger.warn(`Admin not found for email: ${email}`);
-        return res.status(HttpStatus.NOT_FOUND);
-
-      }
-
       this.logger.log(`Admin found for email: ${email}`);
       return res.status(HttpStatus.OK).json(admin);
 
     } catch (error) {
-
-      this.logger.error('Error finding admin by email', error.stack);
-      return res.status(HttpStatus.NOT_FOUND).send(error.message);
-
+      this.logger.warn(`Admin not found for email: ${email}`);
+      return res.status(HttpStatus.NOT_FOUND).json({ message: error.message });
     }
   }
 

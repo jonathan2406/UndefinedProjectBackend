@@ -79,17 +79,16 @@ async create(createAdminDto: CreateAdminDto): Promise<Admin> {
 
   async findByEmail(email: string): Promise<Admin> {
     const snapshot = await this.getFirestore()
-    .collection('admin')
-    .where('email', '==', email)
-    .get();
+      .collection('admin')
+      .where('email', '==', email)
+      .get();
 
     if (snapshot.empty) {
       throw new Error('Admin not found');
     }
 
-    const admin = snapshot.docs[0];
-
-    return new Admin({ id: admin.id, ...admin.data() });
+    const adminDoc = snapshot.docs[0];
+    return new Admin({ id: adminDoc.id, ...adminDoc.data() });
   }
 
   async update(updateAdminDto: UpdateAdminDto): Promise<Admin> {
