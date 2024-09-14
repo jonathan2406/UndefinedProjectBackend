@@ -9,5 +9,5 @@ export class UpdateAdminDto extends PartialType(CreateAdminDto) {
    * Remember that we're using no sql database, so be careful
    * with the properties you're updating.
    */
-
+  
 }

@@ -92,12 +92,29 @@ async create(createAdminDto: CreateAdminDto): Promise<Admin> {
     return new Admin({ id: admin.id, ...admin.data() });
   }
 
-  async update(id: string, updateAdminDto: UpdateAdminDto): Promise<Admin> {
-    // Have to be implemented
-    return null;
+  async update(updateAdminDto: UpdateAdminDto): Promise<Admin> {
+
+    const admin = this.getFirestore()
+    .collection('admin')
+    .doc(updateAdminDto.id);
+
+    if (!(await this.exists(admin.id))) {
+
+      throw new Error('Admin not found');
+    
+    }
+
+    await admin.update(updateAdminDto as {[key: string]: any});
+    return new Admin({ id: admin.id, ...updateAdminDto });
+
   }
 
   async remove(id: string): Promise<void> {
+
+    if (!(await this.exists(id))) {
+      throw new Error('Admin not found');
+    }
+
     await this.getFirestore()
     .collection('admin')
     .doc(id)
@@ -105,24 +122,22 @@ async create(createAdminDto: CreateAdminDto): Promise<Admin> {
   }
 
   async removeByEmail(email: string): Promise<void> {
-    const snapshot = await this.getFirestore()
-    .collection('admin')
-    .where('email', '==', email)
-    .get();
+    const admin = await this.findByEmail(email);
 
-    if (snapshot.empty) {
-      return;
+    if (!admin) {
+      throw new Error('Admin not found');
     }
 
-    snapshot.docs.forEach(doc => {
-      doc.ref.delete();
-    });
+    await this.getFirestore()
+    .collection('admin')
+    .doc(admin.id)
+    .delete();
   }
 
   async removeAll(): Promise<void> {
     const snapshot = await this.getFirestore().collection('admin').get();
-    snapshot.docs.forEach(doc => {
-      doc.ref.delete();
+    snapshot.forEach(admin => { 
+      admin.ref.delete();
     });
   }
 
