@@ -6,6 +6,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^10.4.1",
     "@nestjs/typeorm": "^10.0.2",
-    "firebase-admin": "^12.5.0"
+    "firebase-admin": "^12.5.0",
+    "vercel": "^37.4.2"
   }
 }
