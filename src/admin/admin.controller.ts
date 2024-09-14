@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put, Delete, Res, HttpStatus, Query, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Delete, Res, HttpStatus, Logger } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
