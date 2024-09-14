@@ -19,7 +19,7 @@ export class AdminService {
 
   async exists(id: string): Promise<boolean> {
     const admin = await this.getFirestore()
-    .collection('admins')
+    .collection('admin')
     .doc(id)
     .get();
 
@@ -28,34 +28,36 @@ export class AdminService {
 
   async existsByEmail(email: string): Promise<boolean> {
     const snapshot = await this.getFirestore()
-    .collection('admins')
+    .collection('admin')
     .where('email', '==', email)
     .get();
 
     return !snapshot.empty;
   }
 
-  async create(createAdminDto: CreateAdminDto): Promise<Admin> {
-    const admin = this.getFirestore()
-    .collection('admins')
-    .doc();
+async create(createAdminDto: CreateAdminDto): Promise<Admin> {
+  // Usar el id proporcionado en el DTO para el documento
+  const admin = this.getFirestore()
+    .collection('admin')
+    .doc(createAdminDto.id);
 
-    let check1: boolean = await this.exists(admin.id);
-    let check2: boolean = await this.existsByEmail(createAdminDto.email);
+  let check1: boolean = await this.exists(admin.id);
+  let check2: boolean = await this.existsByEmail(createAdminDto.email);
 
-    if (check1 || check2) {
-      throw new Error('Admin already exists');
-    }
-
-    await admin.set(createAdminDto);
-
-    let adminInstance = new Admin({ id: admin.id, ...createAdminDto });
-
-    return adminInstance;
+  if (check1 || check2) {
+    throw new Error('Admin already exists');
   }
 
+  await admin.set(createAdminDto);
+
+  let adminInstance = new Admin({ id: admin.id, ...createAdminDto });
+
+  return adminInstance;
+}
+
+
   async findAll(): Promise<Admin[]> {
-    const snapshot = await this.getFirestore().collection('admins').get();
+    const snapshot = await this.getFirestore().collection('admin').get();
 
     return snapshot.docs.map(doc => {
       return new Admin({ id: doc.id, ...doc.data() });
@@ -64,16 +66,20 @@ export class AdminService {
 
   async findById(id: string): Promise<Admin> {
     const admin = await this.getFirestore()
-    .collection('admins')
+    .collection('admin')
     .doc(id)
     .get();
+
+    if (!admin.exists) {
+      throw new Error('Admin not found');
+    }
 
     return new Admin({ id: admin.id, ...admin.data() });
   }
 
   async findByEmail(email: string): Promise<Admin> {
     const snapshot = await this.getFirestore()
-    .collection('admins')
+    .collection('admin')
     .where('email', '==', email)
     .get();
 
@@ -93,14 +99,14 @@ export class AdminService {
 
   async remove(id: string): Promise<void> {
     await this.getFirestore()
-    .collection('admins')
+    .collection('admin')
     .doc(id)
     .delete();
   }
 
   async removeByEmail(email: string): Promise<void> {
     const snapshot = await this.getFirestore()
-    .collection('admins')
+    .collection('admin')
     .where('email', '==', email)
     .get();
 
@@ -114,7 +120,7 @@ export class AdminService {
   }
 
   async removeAll(): Promise<void> {
-    const snapshot = await this.getFirestore().collection('admins').get();
+    const snapshot = await this.getFirestore().collection('admin').get();
     snapshot.docs.forEach(doc => {
       doc.ref.delete();
     });

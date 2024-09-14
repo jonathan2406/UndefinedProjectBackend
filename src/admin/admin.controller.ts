@@ -13,9 +13,10 @@ export class AdminController {
   @Post('/create')
   async create(@Body() createAdminDto: CreateAdminDto, @Res() res: Response) {
     this.logger.log('Create admin request received');
+
     try {
       const admin = await this.adminService.create(createAdminDto);
-      this.logger.log('Admin created successfully');
+      this.logger.log('Admin created successfully with ID: ' + admin.id);
       return res.status(HttpStatus.CREATED).json(admin);
     } catch (error) {
       this.logger.error('Error creating admin', error.stack);
@@ -31,16 +32,21 @@ export class AdminController {
     return res.status(HttpStatus.OK).json(admins);
   }
 
-  @Get('/get/id/:id')
-  async findById(@Param('id') id: string, @Res() res: Response) {
-    this.logger.log(`Find admin by ID request received for ID: ${id}`);
-    const admin = await this.adminService.findById(id);
-    if (!admin) {
-      this.logger.warn(`Admin not found for ID: ${id}`);
-      return res.status(HttpStatus.NOT_FOUND);
+  @Get('/get/id')
+  async findById(@Body('id') id: string, @Res() res: Response) {
+    try {
+      this.logger.log(`Find admin by ID request received for ID: ${id}`);
+      const admin = await this.adminService.findById(id);
+      if (!admin) {
+        this.logger.warn(`Admin not found for ID: ${id}`);
+        return res.status(HttpStatus.NOT_FOUND);
+      }
+      this.logger.log(`Admin found for ID: ${id}`);
+      return res.status(HttpStatus.OK).json(admin);
+    } catch (error) {
+      this.logger.error('Error finding admin by ID', error.stack);
+      return res.status(HttpStatus.NOT_FOUND).send(error.message);
     }
-    this.logger.log(`Admin found for ID: ${id}`);
-    return res.status(HttpStatus.OK).json(admin);
   }
 
   @Get('get/email/:email')
