@@ -5,7 +5,6 @@ IMPORTANT!
 [DOING]
 - Working on admin entity controller -> 
   * Add more features to controller
-  * Add exception handlers on services and controllers
 
 [DONE]
 - Entities created
