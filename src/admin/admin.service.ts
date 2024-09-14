@@ -84,7 +84,7 @@ async create(createAdminDto: CreateAdminDto): Promise<Admin> {
     .get();
 
     if (snapshot.empty) {
-      return null;
+      throw new Error('Admin not found');
     }
 
     const admin = snapshot.docs[0];
