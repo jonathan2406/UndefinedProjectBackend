@@ -1,14 +1,18 @@
-# StarMeUpAdmin Side
+# Undefined project Backend side
 
-## Back-end team
+## Admin team
 - David
+- Guillermo
 - Jonathan
 - Nicolas
-- Guillermo
-- ... To add
-
-## Front-end team
-- Neithan
 - Leo
 - Phol
-- ... To add
+- Neithan
+
+
+## Client team
+- Sebastian
+- Daniel
+- Juan David
+- Juan Pablo
+- Rostin

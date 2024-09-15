@@ -2,10 +2,9 @@ import { Module, Global } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-
 @Global()
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot({ envFilePath: '.envdata' })],
   providers: [
     {
       provide: 'FIREBASE_ADMIN_TOKEN',
