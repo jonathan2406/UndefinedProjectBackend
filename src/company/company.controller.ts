@@ -23,7 +23,8 @@ export class CompanyController {
       return res.status(HttpStatus.CONFLICT).send(error.message);
     }
   }
-      */
+      
+  */
 
   @Get('/getall')
   async findAll(@Res() res: Response) {
