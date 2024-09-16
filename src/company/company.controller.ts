@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Put, Delete, Res, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Delete, Res, HttpStatus, Logger, Param } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -9,11 +9,12 @@ export class CompanyController {
   private readonly logger = new Logger(CompanyController.name);
 
   constructor(private readonly companyService: CompanyService) {}
-
+/*
   @Post('/create')
   async create(@Body() createCompanyDto: CreateCompanyDto, @Res() res: Response) {
     this.logger.log('Create company request received');
     try {
+      // Llama al servicio para crear la compañía y captura el resultado
       const company = await this.companyService.create(createCompanyDto);
       this.logger.log('Company created successfully with ID: ' + company.id);
       return res.status(HttpStatus.CREATED).json(company);
@@ -22,6 +23,7 @@ export class CompanyController {
       return res.status(HttpStatus.CONFLICT).send(error.message);
     }
   }
+      */
 
   @Get('/getall')
   async findAll(@Res() res: Response) {
@@ -31,8 +33,8 @@ export class CompanyController {
     return res.status(HttpStatus.OK).json(companies);
   }
 
-  @Get('/get/id')
-  async findById(@Body('id') id: string, @Res() res: Response) {
+  @Get('/get/:id')
+  async findById(@Param('id') id: string, @Res() res: Response) {
     this.logger.log(`Find company by ID request received for ID: ${id}`);
     try {
       const company = await this.companyService.findById(id);

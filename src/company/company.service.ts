@@ -35,24 +35,9 @@ export class CompanyService {
     return !snapshot.empty;
   }
 
-  async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
-    const company = this.getFirestore()
-      .collection('company')
-      .doc(createCompanyDto.id);
-
-    let check1: boolean = await this.exists(company.id);
-    let check2: boolean = await this.existsByName(createCompanyDto.name);
-
-    if (check1 || check2) {
-      throw new Error('Company already exists');
-    }
-
-    await company.set(createCompanyDto);
-
-    let companyInstance = new Company({ id: company.id, ...createCompanyDto });
-
-    return companyInstance;
-  }
+  //async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
+  //}
+  
 
   async findAll(): Promise<Company[]> {
     const snapshot = await this.getFirestore().collection('company').get();
