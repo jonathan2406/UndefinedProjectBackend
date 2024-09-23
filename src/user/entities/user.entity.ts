@@ -1,4 +1,5 @@
 export class User {
+    id: string;
     name: string;
     password: string;
     profile_picture_url: string;
