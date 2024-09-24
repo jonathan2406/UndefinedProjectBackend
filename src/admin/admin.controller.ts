@@ -112,10 +112,18 @@ export class AdminController {
   // Throws an error if the ID is not found (404)
   @Delete('delete/id')
   async remove(@Body('id') id: string, @Res() res: Response) {
+
     this.logger.log(`Delete admin request received for ID: ${id}`);
-    await this.adminService.remove(id);
-    this.logger.log(`Admin deleted successfully for ID: ${id}`);
-    return res.status(HttpStatus.NOT_FOUND).send();
+
+    try {
+
+      await this.adminService.remove(id);
+      this.logger.log(`Admin deleted successfully for ID: ${id}`);
+      return res.status(HttpStatus.OK).send();
+      
+    } catch (error) {
+      return res.status(HttpStatus.NOT_FOUND).send();
+    }
   }
 
   // Throws an error if the email is not found (404)
@@ -128,6 +136,7 @@ export class AdminController {
       
       await this.adminService.removeByEmail(email);
       this.logger.log(`Admin deleted successfully for email: ${email}`);
+      return res.status(HttpStatus.OK).send();
       
     } catch (error) {
       
