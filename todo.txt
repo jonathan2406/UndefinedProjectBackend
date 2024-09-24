@@ -3,13 +3,10 @@ IMPORTANT!
 - ***Create entities services and controller***
 
 [DOING]
-- Working on admin entity controller -> 
-  * Add more features to controller
+- Email Services (Juan David H. - Rostin - Nicolás)
+- Tonekn Entity | Crud (David Torres)
 
 [DONE]
 - Entities created
 - Firebase configuracion created
 - Admin entity service - controller created
-
-
-Rachita!!! grave
