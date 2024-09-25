@@ -35,25 +35,25 @@ export class AdminService {
     return !snapshot.empty;
   }
 
-async create(createAdminDto: CreateAdminDto): Promise<Admin> {
-  // Usar el id proporcionado en el DTO para el documento
-  const admin = this.getFirestore()
-    .collection('admin')
-    .doc(createAdminDto.id);
+  async create(createAdminDto: CreateAdminDto): Promise<Admin> {
+    // Usar el id proporcionado en el DTO para el documento
+    const admin = this.getFirestore()
+      .collection('admin')
+      .doc(createAdminDto.id);
 
-  let check1: boolean = await this.exists(admin.id);
-  let check2: boolean = await this.existsByEmail(createAdminDto.email);
+    let check1: boolean = await this.exists(admin.id);
+    let check2: boolean = await this.existsByEmail(createAdminDto.email);
 
-  if (check1 || check2) {
-    throw new Error('Admin already exists');
+    if (check1 || check2) {
+      throw new Error('Admin already exists');
+    }
+
+    await admin.set(createAdminDto);
+
+    let adminInstance = new Admin({ id: admin.id, ...createAdminDto });
+
+    return adminInstance;
   }
-
-  await admin.set(createAdminDto);
-
-  let adminInstance = new Admin({ id: admin.id, ...createAdminDto });
-
-  return adminInstance;
-}
 
 
   async findAll(): Promise<Admin[]> {
