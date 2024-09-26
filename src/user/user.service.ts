@@ -59,10 +59,23 @@ export class UserService {
     return userDoc.data();
   }
 
-  updateUser(id: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    const userRef = this.userCollection.doc(id);
+    const userDoc = await userRef.get();
 
+    if (!userDoc.exists) {
+      return false;
+    }
+
+    const updatedUserData = {
+      ...updateUserDto,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await userRef.update(updatedUserData);
+
+    return { id, ...updatedUserData };
+  }
   async deleteUser(id: string): Promise<void> {
 
     if (!(await this.exists(id))) {

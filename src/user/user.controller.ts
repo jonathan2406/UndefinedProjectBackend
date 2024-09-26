@@ -11,15 +11,18 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post("/create")
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createUser(createUserDto);
+  async createUser(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
+    await this.userService.createUser(createUserDto);
+    return res.status(HttpStatus.OK).send("User created successfully");
   }
+
 
   @Get(['/getall', '/get/all', '/get-all', '/get'])
   async findAll(@Res() res: Response) {
     const users = await this.userService.getAllUsers();
     return res.status(HttpStatus.OK).json(users);
   }
+  
 
   @Get('/get/:id')
   async findOne(@Param('id') id: string, @Res() res: Response) {
@@ -46,10 +49,15 @@ export class UserController {
     }
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+
+  @Patch('/update/:id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto
+  ) {
     return this.userService.updateUser(id, updateUserDto);
   }
+
 
   @Delete('/delete/:id')
   async remove(@Body('id') id: string, @Res() res: Response) {
