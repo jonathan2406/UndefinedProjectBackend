@@ -1,34 +1,66 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Logger, HttpStatus, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
+  private readonly logger = new Logger(UserController.name);
+
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  @Post("/create")
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    return this.userService.createUser(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Get(['/getall', '/get/all', '/get-all', '/get'])
+  async findAll(@Res() res: Response) {
+    const users = await this.userService.getAllUsers();
+    return res.status(HttpStatus.OK).json(users);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  @Get('/get/:id')
+  async findOne(@Param('id') id: string, @Res() res: Response) {
+    this.logger.log(`Find user by ID request received for ID: ${id}`);
+
+    try {
+
+      const user = await this.userService.getUserById(id);
+      console.log(user)
+      if (!user) {
+
+        this.logger.warn(`User not found for ID: ${id}`);
+        return res.status(HttpStatus.NOT_FOUND);
+      }
+
+      this.logger.log(`User found for ID: ${id}`);
+      return res.status(HttpStatus.OK).json(user);
+
+    } catch (error) {
+
+      this.logger.error('Error finding user by ID', error.stack);
+      return res.status(HttpStatus.NOT_FOUND).send(error.message);
+
+    }
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+    return this.userService.updateUser(id, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @Delete('/delete/:id')
+  async remove(@Body('id') id: string, @Res() res: Response) {
+    this.logger.log(`Delete user request received for ID: ${id}`);
+
+    try {
+      await this.userService.deleteUser(id);
+      return res.status(HttpStatus.OK).send();
+    } catch (error) {
+      this.logger.error('Error deleting user', error.stack);
+      return res.status(HttpStatus.NOT_FOUND).send(error.message);
   }
+}
 }

@@ -12,6 +12,7 @@ export class UserService {
   ) {}
 
   private firestore = this.firebaseApp.firestore();
+  private userCollection = this.firestore.collection('user');
 
   async exists(id: string): Promise<boolean> {
     const admin = await this.firestore
@@ -31,41 +32,43 @@ export class UserService {
     return !snapshot.empty;
   }
 
-  async create(createUserDto: CreateUserDto) {
-    
-    const user = this.firestore
-    .collection('user')
-    .doc(createUserDto.id);
+  async createUser(createUserDto: CreateUserDto) {
+    const userRef = this.userCollection.doc();
+    const userData = {
+      ...createUserDto,
+      id: userRef.id,
+      followers: [],
+      following: [],
+      groups: [],
+      lios_received: {},
+      lios_sent: {},
+    };
 
-    const userRef = this.firestore.collection('user').doc(createUserDto.id)
-
-    let check1: boolean = await this.exists(user.id);
-    let check2: boolean = await this.existsByEmail(createUserDto.email);
-  
-    if (check1 || check2) {
-      throw new Error('User already exists');
-    }
-  
-    await user.set(createUserDto);
-  
-    let userInstance = new User({ id: user.id, ...createUserDto });
-  
-    return userInstance;
+    await userRef.set(userData);
+    return { id: userRef.id, ...userData };
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async getAllUsers() {
+    const snapshot = await this.userCollection.get();
+    const users = snapshot.docs.map(doc => doc.data());
+    return users;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async getUserById(id: string) {
+    const userDoc = await this.userCollection.doc(id).get();
+    return userDoc.data();
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  updateUser(id: string, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async deleteUser(id: string): Promise<void> {
+
+    if (!(await this.exists(id))) {
+      throw new Error('User not found');
+    }
+
+    await this.userCollection.doc(id).delete();
   }
 }

@@ -1,5 +1,4 @@
 export class CreateUserDto {
-    readonly id: string;
     readonly name: string;
     readonly password: string;
     readonly profile_picture_url: string;
@@ -8,12 +7,4 @@ export class CreateUserDto {
     readonly bio: string;
     readonly email: string;
     readonly company: string;
-    readonly available_lios: number;
-    readonly lios_sent: Record<string, string>;
-    readonly lios_received: Record<string, string>;
-    readonly groups: string[];
-    readonly followers: string[];
-    readonly following: string[];
-
 }
-  
