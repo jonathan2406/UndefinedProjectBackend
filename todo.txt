@@ -1,0 +1,12 @@
+[TO DO]
+IMPORTANT!
+- ***Create entities services and controller***
+
+[DOING]
+- Email Services (Juan David H. - Rostin - Nicolás)
+- Tonekn Entity | Crud (David Torres)
+
+[DONE]
+- Entities created
+- Firebase configuracion created
+- Admin entity service - controller created
