@@ -16,6 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             privateKey: configService.get<string>('FIREBASE_PRIVATE_KEY').replace(/\\n/g, '\n'),
             clientEmail: configService.get<string>('FIREBASE_CLIENT_EMAIL'),
           }),
+          storageBucket: `${configService.get<string>('FIREBASE_PROJECT_ID')}.appspot.com`, // el bucket para usar el storage
           databaseURL: `https://${configService.get<string>('FIREBASE_PROJECT_ID')}.firebaseio.com`,
         });
       },
