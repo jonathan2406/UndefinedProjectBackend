@@ -7,6 +7,7 @@ import { CompanyModule } from './company/company.module';
 import { ConfigModule } from '@nestjs/config'; 
 import { AdminController } from './admin/admin.controller';
 import { AdminService } from './admin/admin.service';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AdminService } from './admin/admin.service';
     UserModule,
     PostModule,
     CompanyModule,
+    EmailModule,
   ],
   controllers: [AdminController],
   providers: [AdminService]
