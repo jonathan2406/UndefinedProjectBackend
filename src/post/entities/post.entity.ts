@@ -23,4 +23,3 @@ export class Post {
         Object.assign(this, partial);
     }
 }
-

@@ -1,3 +1,4 @@
+
 export class CreatePostDto {
     userId: string; // ID del usuario que hace el post
     content: string; // Contenido del post
@@ -11,4 +12,4 @@ export class CreatePostDto {
     content: string; // El contenido del comentario
     authorId: string; // El ID del autor del comentario
   }
-  
+¿
