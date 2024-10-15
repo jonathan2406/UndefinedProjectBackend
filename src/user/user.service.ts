@@ -1,26 +1,87 @@
-import { Injectable } from '@nestjs/common';
+import * as admin from 'firebase-admin';
+import { Injectable, Inject } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity'
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+
+  constructor(
+    @Inject('FIREBASE_ADMIN_TOKEN') private readonly firebaseApp: admin.app.App
+  ) {}
+
+  private firestore = this.firebaseApp.firestore();
+  private userCollection = this.firestore.collection('user');
+
+  async exists(id: string): Promise<boolean> {
+    const admin = await this.firestore
+    .collection('user')
+    .doc(id)
+    .get();
+
+    return admin.exists;
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async existsByEmail(email: string): Promise<boolean> {
+    const snapshot = await this.firestore
+    .collection('user')
+    .where('email', '==', email)
+    .get();
+
+    return !snapshot.empty;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async createUser(createUserDto: CreateUserDto) {
+    const userRef = this.userCollection.doc();
+    const userData = {
+      ...createUserDto,
+      id: userRef.id,
+      followers: [],
+      following: [],
+      groups: [],
+      lios_received: {},
+      lios_sent: {},
+    };
+
+    await userRef.set(userData);
+    return { id: userRef.id, ...userData };
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async getAllUsers() {
+    const snapshot = await this.userCollection.get();
+    const users = snapshot.docs.map(doc => doc.data());
+    return users;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async getUserById(id: string) {
+    const userDoc = await this.userCollection.doc(id).get();
+    return userDoc.data();
+  }
+
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    const userRef = this.userCollection.doc(id);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return false;
+    }
+
+    const updatedUserData = {
+      ...updateUserDto,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await userRef.update(updatedUserData);
+
+    return { id, ...updatedUserData };
+  }
+  async deleteUser(id: string): Promise<void> {
+
+    if (!(await this.exists(id))) {
+      throw new Error('User not found');
+    }
+
+    await this.userCollection.doc(id).delete();
   }
 }
