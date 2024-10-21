@@ -24,8 +24,8 @@ export class UserController {
   }
   
 
-  @Get('/get/:id')
-  async findOne(@Param('id') id: string, @Res() res: Response) {
+  @Get('/get/id')
+  async findById(@Body('id') id: string, @Res() res: Response) {
     this.logger.log(`Find user by ID request received for ID: ${id}`);
 
     try {
@@ -44,6 +44,31 @@ export class UserController {
     } catch (error) {
 
       this.logger.error('Error finding user by ID', error.stack);
+      return res.status(HttpStatus.NOT_FOUND).send(error.message);
+
+    }
+  }
+
+  @Get('/get/email')
+  async findByEmail(@Body('email') email: string, @Res() res: Response) {
+    this.logger.log(`Find user by email request received for email: ${email}`);
+
+    try {
+
+      const user = await this.userService.getUserById(email);
+      console.log(user)
+      if (!user) {
+
+        this.logger.warn(`User not found for email: ${email}`);
+        return res.status(HttpStatus.NOT_FOUND);
+      }
+
+      this.logger.log(`User found for email: ${email}`);
+      return res.status(HttpStatus.OK).json(user);
+
+    } catch (error) {
+
+      this.logger.error('Error finding user by email', error.stack);
       return res.status(HttpStatus.NOT_FOUND).send(error.message);
 
     }
