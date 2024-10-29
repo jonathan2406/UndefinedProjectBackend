@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Put, Delete, Res, HttpStatus, Logger, Param } from '@nestjs/common';
+import { Controller, Post, Patch, Body, Get, Put, Delete, Res, HttpStatus, Logger, Param, NotFoundException } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -46,11 +46,18 @@ export class CompanyController {
     }
   }
 
-  @Put('/update/id')
+  // For partial updates, use PATCH
+  @Patch('/update/id')
   async update(@Body('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto, @Res() res: Response) {
     this.logger.log(`Update company request received for ID: ${id}`);
     try {
+      const company = await this.companyService.findById(id);
       const updatedCompany = await this.companyService.update(updateCompanyDto);
+
+      if (!company || !updatedCompany) {
+        throw new NotFoundException(`Company not found for ID: ${id}`);
+      }
+      
       return res.status(HttpStatus.OK).json(updatedCompany);
     } catch (error) {
       this.logger.warn(`Company not found for ID: ${id}`);
