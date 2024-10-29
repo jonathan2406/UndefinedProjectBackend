@@ -55,9 +55,37 @@ export class UserService {
   }
 
   async getUserById(id: string) {
-    const userDoc = await this.userCollection.doc(id).get();
-    return userDoc.data();
+    try {
+      const userDoc = await this.userCollection.doc(id).get();
+  
+      if (!userDoc.exists) {
+        return { success: false, message: 'User not found', data: null };
+      }
+      
+      return userDoc.data();
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      return { success: false, message: 'Failed to retrieve user', error: error.message };
+    }
   }
+  
+  
+  async getUserByEmail(email: string) {
+    try {
+      const snapshot = await this.userCollection
+        .where('email', '==', email).get();
+      if (snapshot.empty) {
+         return { success: false, message: 'User not found', data: null };
+       }
+  
+       const userDoc = snapshot.docs[0];
+       return { success: true, data: userDoc.data() };
+    } catch (error) {
+      console.error("Error fetching user by email:", error);
+      return { success: false, message: 'Failed to retrieve user', error: error.message };
+    }
+  }
+  
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
     const userRef = this.userCollection.doc(id);
