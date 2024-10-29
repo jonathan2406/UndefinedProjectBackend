@@ -47,7 +47,7 @@ export class CompanyController {
   }
 
   // For partial updates, use PATCH
-  @Patch('/update/id')
+  @Patch('/update/:id')
   async update(@Body('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto, @Res() res: Response) {
     this.logger.log(`Update company request received for ID: ${id}`);
     try {
@@ -65,7 +65,7 @@ export class CompanyController {
     }
   }
 
-  @Delete('/delete/id')
+  @Delete('/delete/:id')
   async remove(@Body('id') id: string, @Res() res: Response) {
     this.logger.log(`Delete company request received for ID: ${id}`);
     try {
