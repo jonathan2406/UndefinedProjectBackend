@@ -3,6 +3,8 @@ import { Injectable, Inject } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity'
+import { SecurityModule } from '../security/security.module';
+
 
 @Injectable()
 export class UserService {
@@ -34,8 +36,12 @@ export class UserService {
 
   async createUser(createUserDto: CreateUserDto) {
     const userRef = this.userCollection.doc();
+
+    // Hash the password before saving
+    const hashedPassword = await SecurityModule.hashPassword(createUserDto.password);
     const userData = {
       ...createUserDto,
+      password: hashedPassword, // Store hashed password
       id: userRef.id,
       followers: [],
       following: [],
@@ -62,20 +68,25 @@ export class UserService {
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
     const userRef = this.userCollection.doc(id);
     const userDoc = await userRef.get();
-
+  
     if (!userDoc.exists) {
       return false;
     }
-
-    const updatedUserData = {
+  
+    let updatedUserData = {
       ...updateUserDto,
       updatedAt: new Date().toISOString(),
     };
-
+  
+    if (updateUserDto.password) {
+      updatedUserData.password = await SecurityModule.hashPassword(updateUserDto.password);
+    }
+  
     await userRef.update(updatedUserData);
-
+  
     return { id, ...updatedUserData };
   }
+
   async deleteUser(id: string): Promise<void> {
 
     if (!(await this.exists(id))) {
