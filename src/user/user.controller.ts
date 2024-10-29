@@ -55,10 +55,8 @@ export class UserController {
 
     try {
 
-      const user = await this.userService.getUserById(email);
-      console.log(user)
+      const user = await this.userService.getUserByEmail(email);
       if (!user) {
-
         this.logger.warn(`User not found for email: ${email}`);
         return res.status(HttpStatus.NOT_FOUND);
       }
