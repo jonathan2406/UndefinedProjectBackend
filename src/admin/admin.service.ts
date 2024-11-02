@@ -55,6 +55,49 @@ export class AdminService {
     return adminInstance;
   }
 
+  async getAdminById(id: string): Promise<Admin> {
+
+    const admin = await this.getFirestore()
+    .collection('admin')
+    .doc(id)
+    .get();
+
+    if (!admin.exists) {
+      throw new Error('Admin not found');
+    }
+
+    return new Admin({ id: admin.id, ...admin.data() });
+
+  }
+
+  async getAdminByEmail(email: string): Promise<Admin> {
+
+    const snapshot = await this.getFirestore()
+    .collection('admin')
+    .where('email', '==', email)
+    .get();
+
+    if (snapshot.empty) {
+      throw new Error('Admin not found');
+    }
+
+    const adminDoc = snapshot.docs[0];
+    return new Admin({ id: adminDoc.id, ...adminDoc.data() });
+
+  }
+
+  async authAdmin(email: string, password: string) {
+    const admin = await this.getAdminByEmail(email);
+    if (!admin) {
+      return { success: false, message: 'Admin not found', data: null };
+    }
+  
+    if (admin.password !== password) {
+      return { success: false, message: 'Invalid email or password', data: null };
+    }
+  
+    return { success: true, data: admin };
+  }
 
   async findAll(): Promise<Admin[]> {
     const snapshot = await this.getFirestore().collection('admin').get();
