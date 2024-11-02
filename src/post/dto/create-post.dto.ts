@@ -12,3 +12,4 @@ export class CommentDto {
   content: string; // El contenido del comentario
   authorId: string; // El ID del autor del comentario
   }
+
