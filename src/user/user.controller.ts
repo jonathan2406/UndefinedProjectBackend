@@ -22,7 +22,6 @@ export class UserController {
     const users = await this.userService.getAllUsers();
     return res.status(HttpStatus.OK).json(users);
   }
-  
 
   @Get('/get/id')
   async findById(@Body('id') id: string, @Res() res: Response) {
