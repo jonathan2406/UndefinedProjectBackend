@@ -85,6 +85,19 @@ export class UserService {
       return { success: false, message: 'Failed to retrieve user', error: error.message };
     }
   }
+
+  async authUser(email: string, password: string) {
+    const user = await this.getUserByEmail(email);
+    if (!user.success) {
+      return { success: false, message: 'User not found', data: null };
+    }
+  
+    if (user.data.password !== password) {
+      return { success: false, message: 'Invalid email or password', data: null };
+    }
+  
+    return { success: true, data: user.data };
+  }
   
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
