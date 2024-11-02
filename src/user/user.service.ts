@@ -5,7 +5,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity'
 import { SecurityModule } from '../security/security.module';
 
-
 @Injectable()
 export class UserService {
 
@@ -97,8 +96,10 @@ export class UserService {
     if (!user.success) {
       return { success: false, message: 'User not found', data: null };
     }
+
+    let validAuth = await SecurityModule.comparePassword(password, user.data.password);
   
-    if (user.data.password !== password) {
+    if (!validAuth) {
       return { success: false, message: 'Invalid email or password', data: null };
     }
   

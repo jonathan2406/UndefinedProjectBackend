@@ -37,7 +37,7 @@ export class CompanyController {
     }
   }
 
-  @Get('/')
+  @Get('/get/all')
   async findAll(@Res() res: Response) {
     this.logger.log('Get all companies request received');
     try {
