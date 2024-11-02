@@ -8,10 +8,13 @@ import * as morgan from 'morgan';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: ['log', 'error', 'warn', 'debug', 'verbose'], // Configurar niveles de logging
+    logger: ['log', 'error', 'warn', 'debug', 'verbose'], 
   });
-
-  // Usar morgan para registrar solicitudes HTTP
+  app.enableCors({
+    origin: ["http://localhost:3000"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: false,
+  });
   app.use(morgan('combined'));
 
   app.use(new RateLimiterMiddleware().use);
