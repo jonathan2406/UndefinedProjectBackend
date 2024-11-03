@@ -85,6 +85,18 @@ export class CompanyController {
     }
   }
 
+  @Get('/get/email')
+  async getByEmail(@Body() email: string, @Res() res: Response) {
+    this.logger.log('Get company by email request received for email: ' + email);
+    try {
+      const company = await this.companyService.getByEmail(email);
+      return res.status(HttpStatus.OK).json(company);
+    } catch (error) {
+      this.logger.error('Error getting company by email', error.stack);
+      return res.status(HttpStatus.NOT_FOUND).send(error.message);
+    }
+  }
+
   @Put('/:id/groups-users')
   async updateGroupsUsers(@Param('id') id: string, @Body() updateGroupsUsersDto: UpdateGroupsUsersDto, @Res() res: Response) {
     this.logger.log('Update groups and users request received for company ID: ' + id);
