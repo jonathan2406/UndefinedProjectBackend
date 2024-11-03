@@ -8,9 +8,9 @@ export class User {
     bio: string;
     email: string;
     company: string;
-    available_lios: number;
-    lios_sent: Record<string, string>;
-    lios_received: Record<string, string>;
+    available_rockets: number;
+    rockets_sent: Record<string, string>;
+    rockets_received: Record<string, string>;
     groups: string[];
     following: string[];
     followers: string[];
