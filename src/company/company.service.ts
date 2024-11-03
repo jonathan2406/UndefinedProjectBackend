@@ -57,6 +57,7 @@ export class CompanyService {
     const doc = snapshot.docs[0];
     return { id: doc.id, ...doc.data() } as Company;
   }
+  
 
   async existsByEmail(email: string): Promise<boolean> {
     const snapshot = await this.collection.where('email', '==', email).get();
