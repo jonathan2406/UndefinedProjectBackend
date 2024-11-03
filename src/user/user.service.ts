@@ -40,8 +40,8 @@ export class UserService {
       followers: [],
       following: [],
       groups: [],
-      lios_received: {},
-      lios_sent: {},
+      rockets_received: {},
+      rockets_sent: {},
     };
 
     await userRef.set(userData);
@@ -111,5 +111,65 @@ export class UserService {
     }
 
     await this.userCollection.doc(id).delete();
+  }
+
+
+  async sendRocket(senderId: string, recipientId: string, amount: number): Promise<void> {
+    if (amount <= 0) {
+      throw new Error('Amount must be greater than zero.');
+    }
+
+    const senderRef = this.firestore.collection('user').doc(senderId);
+    const recipientRef = this.firestore.collection('user').doc(recipientId);
+
+    try {
+      await this.firestore.runTransaction(async (transaction) => {
+        const senderDoc = await transaction.get(senderRef);
+        const recipientDoc = await transaction.get(recipientRef);
+
+        // Validate sender
+        if (!senderDoc.exists) {
+          throw new Error('Sender does not exist.');
+        }
+
+        const senderData = senderDoc.data();
+        const availableRockets = senderData?.available_rockets ?? 0;
+
+        if (availableRockets < amount) {
+          throw new Error('Insufficient rockets to send.');
+        }
+
+        // Validate recipient
+        if (!recipientDoc.exists) {
+          throw new Error('Recipient does not exist.');
+        }
+
+        const recipientData = recipientDoc.data();
+        const updatedAvailableRockets = availableRockets - amount;
+        const senderRocketsSent = senderData?.rockets_sent || {};
+        const updatedSenderRocketsSent = {
+          ...senderRocketsSent,
+          [recipientId]: (senderRocketsSent[recipientId] || 0) + amount,
+        };
+
+        transaction.update(senderRef, {
+          available_rockets: updatedAvailableRockets,
+          rockets_sent: updatedSenderRocketsSent,
+        });
+
+        // Update recipient's rockets_received map
+        const recipientRocketsReceived = recipientData?.rockets_received || {};
+        const updatedRecipientRocketsReceived = {
+          ...recipientRocketsReceived,
+          [senderId]: (recipientRocketsReceived[senderId] || 0) + amount,
+        };
+
+        transaction.update(recipientRef, {
+          rockets_received: updatedRecipientRocketsReceived,
+        });
+      });
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 }

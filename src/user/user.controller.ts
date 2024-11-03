@@ -92,6 +92,22 @@ export class UserController {
     } catch (error) {
       this.logger.error('Error deleting user', error.stack);
       return res.status(HttpStatus.NOT_FOUND).send(error.message);
+    }
   }
-}
+
+  @Post('/send-rocket')
+  async sendRocket(
+    @Body('recipientId') recipientId: string,
+    @Body('amount') amount: number,
+    @Res() res: Response,
+    @Body('senderId') senderId: string
+  ) {
+    try {
+      await this.userService.sendRocket(senderId, recipientId, amount);
+      return res.status(HttpStatus.OK).send({ message: 'Rockets sent successfully.' });
+    } catch (error) {
+      this.logger.error('Error sending rockets', error.stack);
+      return res.status(HttpStatus.BAD_REQUEST).send({ error: error.message });
+    }
+  }
 }

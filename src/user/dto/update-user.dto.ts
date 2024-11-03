@@ -2,7 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import { CreateUserDto } from './create-user.dto';
 
 export class UpdateUserDto {
-    available_lios?: number;
+    available_rockets?: number;
     bio?: string;
     company?: string;
     email?: string;
@@ -14,6 +14,6 @@ export class UpdateUserDto {
     followers?: string[];
     following?: string[];
     groups?: string[];
-    lios_received?: { [userid: string]: number };
-    lios_sent?: { [userid: string]: number };
+    rockets_received?: { [userid: string]: number };
+    rockets_sent?: { [userid: string]: number };
   }
