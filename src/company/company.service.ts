@@ -67,6 +67,10 @@ export class CompanyService {
     return null;
   }
 
+  async delete(id: string) {
+    await this.collection.doc(id).delete();
+  }
+
   async updateMeetings(id: string, updateMeetingsDto: UpdateMeetingsDto) {
     await this.collection.doc(id).update({ meetings: updateMeetingsDto.meetings });
     const doc = await this.collection.doc(id).get();
