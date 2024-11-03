@@ -4,6 +4,7 @@ import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { UpdateMeetingsDto } from './dto/update-meetings.dto';
 import { UpdateGroupsUsersDto } from './dto/update-groups-users.dto';
+import { Company } from './entities/company.entity';
 
 @Injectable()
 export class CompanyService {
@@ -48,8 +49,22 @@ export class CompanyService {
     return { id: doc.id, ...doc.data() };
   }
 
-  async delete(id: string) {
-    await this.collection.doc(id).delete();
+  async getByEmail(email: string): Promise<Company> {
+    const snapshot = await this.collection.where('email', '==', email).get();
+    if (snapshot.empty) {
+      throw new Error('Company not found');
+    }
+    const doc = snapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as Company;
+  }
+
+  async existsByEmail(email: string): Promise<boolean> {
+    const snapshot = await this.collection.where('email', '==', email).get();
+    return !snapshot.empty;
+  }
+
+  async authCompany(email: string, password: string): Promise<Company> {
+    return null;
   }
 
   async updateMeetings(id: string, updateMeetingsDto: UpdateMeetingsDto) {
