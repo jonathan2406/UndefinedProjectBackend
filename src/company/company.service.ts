@@ -1,120 +1,86 @@
-import * as admin from 'firebase-admin';
+import { Injectable } from '@nestjs/common';
+import { Firestore } from '@google-cloud/firestore';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
-import { Injectable, Inject } from '@nestjs/common';
+import { UpdateMeetingsDto } from './dto/update-meetings.dto';
+import { UpdateGroupsUsersDto } from './dto/update-groups-users.dto';
 import { Company } from './entities/company.entity';
 
 @Injectable()
 export class CompanyService {
-  
-  constructor(
-    @Inject('FIREBASE_ADMIN_TOKEN') private readonly firebaseApp: admin.app.App
-  ) {}
+  private firestore: Firestore;
+  private collection: FirebaseFirestore.CollectionReference;
 
-  private getFirestore() {
-    return this.firebaseApp.firestore();
-  }
-
-  // Checkers
-
-  async exists(id: string): Promise<boolean> {
-    const company = await this.getFirestore()
-      .collection('company')
-      .doc(id)
-      .get();
-
-    return company.exists;
-  }
-
-  async existsByName(name: string): Promise<boolean> {
-    const snapshot = await this.getFirestore()
-      .collection('company')
-      .where('name', '==', name)
-      .get();
-
-    return !snapshot.empty;
-  }
-
-  //async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
-  //}
-  
-
-  async findAll(): Promise<Company[]> {
-    const snapshot = await this.getFirestore().collection('company').get();
-
-    return snapshot.docs.map(doc => {
-      return new Company({ id: doc.id, ...doc.data() });
+  constructor() {
+    this.firestore = new Firestore({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      credentials: {
+        private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      },
     });
+
+    this.collection = this.firestore.collection('company');
   }
 
-  async findById(id: string): Promise<Company> {
-    const company = await this.getFirestore()
-      .collection('company')
-      .doc(id)
-      .get();
+  async create(createCompanyDto: CreateCompanyDto) {
+    const docRef = await this.collection.add(createCompanyDto);
+    const doc = await docRef.get();
+    return { id: doc.id, ...doc.data() };
+  }
 
-    if (!company.exists) {
+  async findOne(id: string) {
+    const doc = await this.collection.doc(id).get();
+    if (!doc.exists) {
       throw new Error('Company not found');
     }
-
-    return new Company({ id: company.id, ...company.data() });
+    return { id: doc.id, ...doc.data() };
   }
 
-  async findByName(name: string): Promise<Company> {
-    const snapshot = await this.getFirestore()
-      .collection('company')
-      .where('name', '==', name)
-      .get();
+  async findAll() {
+    const snapshot = await this.collection.get();
+    const companies = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return companies;
+  }
 
+  async update(id: string, updateCompanyDto: UpdateCompanyDto) {
+    await this.collection.doc(id).update(updateCompanyDto as { [key: string]: any });
+    const doc = await this.collection.doc(id).get();
+    return { id: doc.id, ...doc.data() };
+  }
+
+  async getByEmail(email: string): Promise<Company> {
+    const snapshot = await this.collection.where('email', '==', email).get();
     if (snapshot.empty) {
       throw new Error('Company not found');
     }
+    const doc = snapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as Company;
+  }
+  
 
-    const companyDoc = snapshot.docs[0];
-    return new Company({ id: companyDoc.id, ...companyDoc.data() });
+  async existsByEmail(email: string): Promise<boolean> {
+    const snapshot = await this.collection.where('email', '==', email).get();
+    return !snapshot.empty;
   }
 
-  async update(updateCompanyDto: UpdateCompanyDto): Promise<Company> {
-    const company = this.getFirestore()
-      .collection('company')
-      .doc(updateCompanyDto.id);
-
-    if (!(await this.exists(company.id))) {
-      throw new Error('Company not found');
-    }
-
-    await company.update(updateCompanyDto as { [key: string]: any });
-    return new Company({ id: company.id, ...updateCompanyDto });
+  async authCompany(email: string, password: string): Promise<Company> {
+    return null;
   }
 
-  async remove(id: string): Promise<void> {
-    if (!(await this.exists(id))) {
-      throw new Error('Company not found');
-    }
-
-    await this.getFirestore()
-      .collection('company')
-      .doc(id)
-      .delete();
+  async delete(id: string) {
+    await this.collection.doc(id).delete();
   }
 
-  async removeByName(name: string): Promise<void> {
-    const company = await this.findByName(name);
-
-    if (!company) {
-      throw new Error('Company not found');
-    }
-
-    await this.getFirestore()
-      .collection('company')
-      .doc(company.id)
-      .delete();
+  async updateMeetings(id: string, updateMeetingsDto: UpdateMeetingsDto) {
+    await this.collection.doc(id).update({ meetings: updateMeetingsDto.meetings });
+    const doc = await this.collection.doc(id).get();
+    return { id: doc.id, ...doc.data() };
   }
 
-  async removeAll(): Promise<void> {
-    const snapshot = await this.getFirestore().collection('company').get();
-    snapshot.forEach(company => {
-      company.ref.delete();
-    });
+  async updateGroupsUsers(id: string, updateGroupsUsersDto: UpdateGroupsUsersDto) {
+    await this.collection.doc(id).update({ groups: updateGroupsUsersDto.groups, users: updateGroupsUsersDto.users });
+    const doc = await this.collection.doc(id).get();
+    return { id: doc.id, ...doc.data() };
   }
 }

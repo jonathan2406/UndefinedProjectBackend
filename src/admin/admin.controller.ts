@@ -87,6 +87,26 @@ export class AdminController {
     }
   }
 
+  @Post('/auth')
+  async auth(@Body() body: { email: string, password: string }, @Res() res: Response) {
+    const { email, password } = body;
+    this.logger.log(`Auth admin request received for email: ${email}`);
+
+    try {
+      const auth = await this.adminService.authAdmin(email, password);
+      if (!auth.success) {
+        this.logger.warn(`Invalid email or password for email: ${email}`);
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: auth.message });
+      }
+      this.logger.log(`Admin authenticated successfully for email: ${email}`);
+      return res.status(HttpStatus.OK).json(auth.data);
+
+    } catch (error) {
+      this.logger.error('Error authenticating admin', error.stack);
+      return res.status(HttpStatus.NOT_FOUND).json({ message: error.message });
+    }
+  }
+
   // Throws an error if the ID is not found (404)
   @Put('update/id')
   async update(@Body('id') id: string, @Body() updateAdminDto: UpdateAdminDto, @Res() res: Response) {
@@ -112,10 +132,18 @@ export class AdminController {
   // Throws an error if the ID is not found (404)
   @Delete('delete/id')
   async remove(@Body('id') id: string, @Res() res: Response) {
+
     this.logger.log(`Delete admin request received for ID: ${id}`);
-    await this.adminService.remove(id);
-    this.logger.log(`Admin deleted successfully for ID: ${id}`);
-    return res.status(HttpStatus.NOT_FOUND).send();
+
+    try {
+
+      await this.adminService.remove(id);
+      this.logger.log(`Admin deleted successfully for ID: ${id}`);
+      return res.status(HttpStatus.OK).send();
+      
+    } catch (error) {
+      return res.status(HttpStatus.NOT_FOUND).send();
+    }
   }
 
   // Throws an error if the email is not found (404)
@@ -128,6 +156,7 @@ export class AdminController {
       
       await this.adminService.removeByEmail(email);
       this.logger.log(`Admin deleted successfully for email: ${email}`);
+      return res.status(HttpStatus.OK).send();
       
     } catch (error) {
       

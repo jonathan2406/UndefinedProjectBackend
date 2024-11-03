@@ -1,0 +1,2 @@
+USER ENTITY -> Support get a user by their email
+USER ENTITY -> Create n users based on data from an Excel file

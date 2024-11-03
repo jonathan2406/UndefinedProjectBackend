@@ -22,7 +22,6 @@ export class UserController {
     const users = await this.userService.getAllUsers();
     return res.status(HttpStatus.OK).json(users);
   }
-  
 
   @Get('/get/id')
   async findById(@Body('id') id: string, @Res() res: Response) {
@@ -67,6 +66,29 @@ export class UserController {
     } catch (error) {
 
       this.logger.error('Error finding user by email', error.stack);
+      return res.status(HttpStatus.NOT_FOUND).send(error.message);
+
+    }
+  }
+
+  @Post('/auth')
+  async authUser(@Body('email') email: string, @Body('password') password: string, @Res() res: Response) {
+    this.logger.log(`Auth user request received for email: ${email}`);
+
+    try {
+
+      const user = await this.userService.authUser(email, password);
+      if (!user) {
+        this.logger.warn(`User not found for email: ${email}`);
+        return res.status(HttpStatus.NOT_FOUND);
+      }
+
+      this.logger.log(`User found for email: ${email}`);
+      return res.status(HttpStatus.OK).json(user);
+
+    } catch (error) {
+
+      this.logger.error('Error authenticating user', error.stack);
       return res.status(HttpStatus.NOT_FOUND).send(error.message);
 
     }
